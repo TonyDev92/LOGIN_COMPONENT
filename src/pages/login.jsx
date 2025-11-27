@@ -1,5 +1,5 @@
 import React from 'react'
-import LoginComponent from '../components/logincomponent';
+import Logincomponent from '../components/logincomponent';
 
 const LOGIN = () => {
     const handleLogin = (loginData) => {
@@ -7,7 +7,7 @@ const LOGIN = () => {
     }
     return (
         <>
-            <LoginComponent onLogin={handleLogin}/>
+            <Logincomponent onLogin={handleLogin}/>
         </>
     )
 }

@@ -1,0 +1,6 @@
+{
+    "serverType" :{
+        "server": "Java"
+    },
+    "_coment": "Specify the server type here: 'NodeJS' or 'Java'"
+}

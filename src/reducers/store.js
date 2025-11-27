@@ -1,21 +1,10 @@
-import {configureStore , createSlice} from '@reduxjs/toolkit';
+import { configureStore} from "reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+import authReducer from "./authReducer";
 
-const authSlice = createSlice({
-
-    initial_name : 'auth',
-    initialState : {
-        isLoggedIn: false,
-        token: null
+export const store = configureStore({
+    reducer: {
+        counter: counterReducer,
+        authReducer: authReducer,
     },
-    reducers: {
-        logginSuccess: (state, action) => {
-            state.isLoggedIn = true;
-            state.token = action.payload.token;
-        },
-
-        loggout: (state) => {
-            state.isLoggedIn = false;
-            state.token = null;
-        }
-    }
 });

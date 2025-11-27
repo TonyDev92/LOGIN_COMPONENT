@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axiosClient from "../Api/axios.client";
+import '../styles/loginNode.css';
 
 function withRouter(Component) {
     function ComponentWithRouterProp(props) {
@@ -20,7 +21,7 @@ class LoginComponent extends React.Component {
             password: "",
             Verifing: false,
             error: "",
-            nonce: null, // <--- Guardamos el nonce
+            nonce: null,
         };
         this.responseInterceptor = null;
     }
@@ -80,20 +81,16 @@ class LoginComponent extends React.Component {
         this.setState({ Verifing: true, error: "" });
 
         try {
-            // SEND CREDENTIALS TO THE BACKEND
             const loginResponse = await axiosClient.post("/auth/login", { user, password });
 
-            // SAVE THE NONCE
             const nonce = loginResponse.data?.token;
             this.setState({ nonce });
-            console.log("Nonce recibido:", nonce);
 
             if (!nonce) throw new Error("No nonce received from backend");
 
-            // SEND NONCE 
             const { data: options } = await axiosClient.post("/auth/webauthn", {
                 purpose: "login-access",
-                nonce, 
+                nonce,
             });
 
             const publicKey = {
@@ -105,12 +102,10 @@ class LoginComponent extends React.Component {
                 })),
             };
 
-            // EXECUTE WEBAUTHN AUTHENTICATION
             const credential = await navigator.credentials.get({ publicKey });
 
-            
             await axiosClient.post("/auth/web/authn/precheck/verify", {
-                nonce, // <--- SEND THE NONCE
+                nonce,
                 id: credential.id,
                 rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
                 type: credential.type,
@@ -125,18 +120,12 @@ class LoginComponent extends React.Component {
                         String.fromCharCode(...new Uint8Array(credential.response.signature))
                     ),
                     userHandle: credential.response.userHandle
-                        ? btoa(
-                            String.fromCharCode(
-                                ...new Uint8Array(credential.response.userHandle)
-                            )
-                        )
+                        ? btoa(String.fromCharCode(...new Uint8Array(credential.response.userHandle)))
                         : null,
                 },
             });
 
-            
             this.props.router.navigate("/securepage");
-
         } catch (err) {
             console.error("Error durante login + WebAuthn:", err);
         } finally {
@@ -148,13 +137,14 @@ class LoginComponent extends React.Component {
         const { user, password, Verifing, error } = this.state;
 
         return (
-            <div style={{ width: "300px", margin: "0 auto", textAlign: "center" }}>
-                <h2>Iniciar Sesión</h2>
-                {error && <p style={{ color: "red" }}>{error}</p>}
-                <form onSubmit={this.handleSubmit}>
-                    <div style={{ marginBottom: "10px" }}>
-                        <label>Usuario</label>
-                        <br />
+            <div className="login-container">
+
+                {error && <p className="login-error">{error}</p>}
+
+                <form onSubmit={this.handleSubmit} className="login-form">
+                <h2 className="login-title">Login</h2>
+                    <div className="form-group">
+                        <label className="form-label">Usuario</label>
                         <input
                             type="text"
                             name="user"
@@ -162,12 +152,12 @@ class LoginComponent extends React.Component {
                             onChange={this.handleChange}
                             placeholder="Enter your email"
                             required
+                            className="form-input"
                         />
                     </div>
 
-                    <div style={{ marginBottom: "10px" }}>
-                        <label>Contraseña</label>
-                        <br />
+                    <div className="form-group">
+                        <label className="form-label">Contraseña</label>
                         <input
                             type="password"
                             name="password"
@@ -175,10 +165,11 @@ class LoginComponent extends React.Component {
                             onChange={this.handleChange}
                             placeholder="Enter your password"
                             required
+                            className="form-input"
                         />
                     </div>
 
-                    <button type="submit" disabled={Verifing}>
+                    <button type="submit" className="login-btn" disabled={Verifing}>
                         {Verifing ? "Verifing..." : "Entrar"}
                     </button>
                 </form>
